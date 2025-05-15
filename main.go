@@ -5,15 +5,21 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/dariuskramer/pokedex/internal/commands"
 	"github.com/dariuskramer/pokedex/internal/pokeapi"
+	"github.com/dariuskramer/pokedex/internal/pokecache"
 	"github.com/dariuskramer/pokedex/internal/repl"
 )
 
 func main() {
 	const Prompt = "Pokedex > "
-	config := &commands.CommandConfig{Next: pokeapi.PokeApiLocationAreasURL}
+	const cacheDuration = 5 * time.Second
+	config := &commands.CommandConfig{
+		Next:  pokeapi.PokeApiLocationAreasURL,
+		Cache: pokecache.NewCache(cacheDuration),
+	}
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {

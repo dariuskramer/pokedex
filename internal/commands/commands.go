@@ -1,8 +1,13 @@
 package commands
 
+import (
+	"github.com/dariuskramer/pokedex/internal/pokecache"
+)
+
 type CommandConfig struct {
 	Next     string
 	Previous string
+	Cache    *pokecache.Cache
 }
 
 type CliCommand struct {

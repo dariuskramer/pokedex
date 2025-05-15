@@ -3,12 +3,21 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"strings"
 
 	"github.com/dariuskramer/pokedex/internal/pokeapi"
 )
 
 func requestMap(url string, config *CommandConfig) error {
+	val, keyFound := config.Cache.Get(url)
+	if keyFound {
+		log.Println("cache hit!")
+		fmt.Println(string(val))
+		return nil
+	}
+
 	response, err := http.Get(url)
 	if err != nil {
 		return fmt.Errorf("%v", err)
@@ -22,12 +31,22 @@ func requestMap(url string, config *CommandConfig) error {
 		return fmt.Errorf("%v", err)
 	}
 
+	var locations strings.Builder
 	for _, location := range payload.Results {
 		fmt.Println(location.Name)
+		locations.WriteString(location.Name)
+		locations.WriteByte('\n')
 	}
 
 	config.Next = payload.Next
 	config.Previous = payload.Previous
+	// if payload.Previous == "" {
+	// 	config.Previous = url
+	// } else {
+	// 	config.Previous = payload.Previous
+	// }
+	removeLastNewline := len(locations.String()) - 1
+	config.Cache.Add(url, []byte(locations.String()[:removeLastNewline]))
 
 	return nil
 }
