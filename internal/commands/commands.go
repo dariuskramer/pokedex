@@ -1,0 +1,39 @@
+package commands
+
+type CommandConfig struct {
+	Next     string
+	Previous string
+}
+
+type CliCommand struct {
+	Name        string
+	Description string
+	Callback    func(config *CommandConfig) error
+}
+
+var SupportedCommands map[string]CliCommand
+
+func init() {
+	SupportedCommands = map[string]CliCommand{
+		"exit": {
+			Name:        "exit",
+			Description: "Exit the Pokedex",
+			Callback:    CommandExit,
+		},
+		"help": {
+			Name:        "help",
+			Description: "Display a help message",
+			Callback:    CommandHelp,
+		},
+		"map": {
+			Name:        "map",
+			Description: "Display the next 20 location areas in the Pokemon world",
+			Callback:    CommandMap,
+		},
+		"mapb": {
+			Name:        "mapb",
+			Description: "Display the previous 20 location areas in the Pokemon world",
+			Callback:    CommandMapb,
+		},
+	}
+}

@@ -1,4 +1,4 @@
-package main
+package repl
 
 import "testing"
 
@@ -18,7 +18,7 @@ func TestCleanInput(t *testing.T) {
 	}
 
 	for _, testcase := range cases {
-		actual := cleanInput(testcase.input)
+		actual := CleanInput(testcase.input)
 
 		expectedLen := len(testcase.expected)
 		actualLen := len(actual)
