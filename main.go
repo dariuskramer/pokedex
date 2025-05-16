@@ -1,10 +1,6 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"log"
-	"os"
 	"time"
 
 	"github.com/dariuskramer/pokedex/internal/commands"
@@ -12,36 +8,10 @@ import (
 )
 
 func main() {
-	config := &commands.CommandConfig{
+	config := commands.CommandConfig{
 		PokeapiClient: pokeapi.NewClient(5 * time.Second),
 		Pokedex:       make(map[string]pokeapi.Pokemon),
 	}
-	scanner := bufio.NewScanner(os.Stdin)
 
-	for {
-		fmt.Print("Pokedex > ")
-		if !scanner.Scan() {
-			log.Fatalf("Scanner error: %v", scanner.Err())
-		}
-		input := CleanInput(scanner.Text())
-		if len(input) == 0 {
-			continue
-		}
-
-		command, ok := commands.SupportedCommands[input[0]]
-		if !ok {
-			fmt.Println("Unknown command")
-			continue
-		}
-
-		var args []string
-		if len(input) > 1 {
-			args = input[1:]
-		}
-
-		err := command.Callback(config, args...)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
+	replLoop(&config)
 }

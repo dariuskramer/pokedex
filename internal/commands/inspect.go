@@ -1,6 +1,9 @@
 package commands
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 func CommandInspect(config *CommandConfig, args ...string) error {
 	if len(args) == 0 {
@@ -8,10 +11,9 @@ func CommandInspect(config *CommandConfig, args ...string) error {
 	}
 
 	pokemonToInspect := args[0]
-
 	pokemonStat, ok := config.Pokedex[pokemonToInspect]
 	if !ok {
-		return fmt.Errorf("you have not caught that pokemon")
+		return errors.New("you have not caught that pokemon")
 	}
 
 	fmt.Print(pokemonStat.Formatter())

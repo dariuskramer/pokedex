@@ -35,13 +35,13 @@ func (p Pokemon) Formatter() string {
 	fmt.Fprintf(&builder, "Weight: %d\n", p.Weight)
 
 	builder.WriteString("Stats:\n")
-	for _, stat := range p.Stats {
-		fmt.Fprintf(&builder, "  - %s\n", stat.Stat.Name)
+	for _, statInfo := range p.Stats {
+		fmt.Fprintf(&builder, "  - %s: %v\n", statInfo.Stat.Name, statInfo.BaseStat)
 	}
 
 	builder.WriteString("Types:\n")
-	for _, types := range p.Types {
-		fmt.Fprintf(&builder, "  - %s\n", types.Type.Name)
+	for _, typeInfo := range p.Types {
+		fmt.Fprintf(&builder, "  - %s\n", typeInfo.Type.Name)
 	}
 
 	return builder.String()
