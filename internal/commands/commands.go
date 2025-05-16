@@ -2,20 +2,19 @@ package commands
 
 import (
 	"github.com/dariuskramer/pokedex/internal/pokeapi"
-	"github.com/dariuskramer/pokedex/internal/pokecache"
 )
 
 type CommandConfig struct {
-	Next     string
-	Previous string
-	Cache    *pokecache.Cache
-	Pokedex  map[string]pokeapi.Pokemon
+	PokeapiClient    pokeapi.Client
+	nextLocationsURL string
+	prevLocationsURL string
+	Pokedex          map[string]pokeapi.Pokemon
 }
 
 type CliCommand struct {
 	Name        string
 	Description string
-	Callback    func(config *CommandConfig, args []string) error
+	Callback    func(*CommandConfig, ...string) error
 }
 
 var SupportedCommands map[string]CliCommand
@@ -35,12 +34,12 @@ func init() {
 		"map": {
 			Name:        "map",
 			Description: "Display the next 20 location areas in the Pokemon world",
-			Callback:    CommandMap,
+			Callback:    CommandMapForward,
 		},
 		"mapb": {
 			Name:        "mapb",
 			Description: "Display the previous 20 location areas in the Pokemon world",
-			Callback:    CommandMapb,
+			Callback:    CommandMapBackward,
 		},
 		"explore": {
 			Name:        "explore",

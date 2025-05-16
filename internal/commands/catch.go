@@ -1,10 +1,9 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
-
-	"github.com/dariuskramer/pokedex/internal/pokeapi"
 )
 
 const (
@@ -13,36 +12,30 @@ const (
 	baseExperienceLimit = 300
 )
 
-func CommandCatch(config *CommandConfig, args []string) error {
+func CommandCatch(config *CommandConfig, args ...string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("usage: catch <pokémon>")
+		return errors.New("usage: catch <pokémon>")
 	}
 	if len(args) > 1 {
-		return fmt.Errorf("you can only catch one Pokémon at a time")
+		return errors.New("you can only catch one Pokémon at a time")
 	}
 
-	pokemonToCatch := args[0]
-
-	fmt.Printf("Throwing a Pokeball at %s...\n", pokemonToCatch)
-
-	url := pokeapi.PokemonURL + "/" + pokemonToCatch
-
-	// Fetch the data from the API
-	var result pokeapi.Pokemon
-	err := pokeapi.Fetch(url, &result)
+	pokemon, err := config.PokeapiClient.GetPokemon(args[0])
 	if err != nil {
-		return fmt.Errorf("catch: %v", err)
+		return err
 	}
+
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
 
 	chanceToCatch := rand.Intn(baseExperienceLimit)
-	if chanceToCatch >= result.BaseExperience {
-		fmt.Printf("%s was caught!\n", result.Name)
-
-		// Add to the Pokedex
-		config.Pokedex[result.Name] = result
+	if chanceToCatch >= pokemon.BaseExperience {
+		fmt.Printf("%s was caught!\n", pokemon.Name)
 	} else {
-		fmt.Printf("%s escaped!\n", result.Name)
+		fmt.Printf("%s escaped!\n", pokemon.Name)
 	}
+
+	// Add to the Pokedex
+	config.Pokedex[pokemon.Name] = pokemon
 
 	return nil
 }

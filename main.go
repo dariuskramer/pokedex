@@ -9,25 +9,21 @@ import (
 
 	"github.com/dariuskramer/pokedex/internal/commands"
 	"github.com/dariuskramer/pokedex/internal/pokeapi"
-	"github.com/dariuskramer/pokedex/internal/pokecache"
-	"github.com/dariuskramer/pokedex/internal/repl"
 )
 
 func main() {
-	const Prompt = "Pokedex > "
-	const cacheDuration = 5 * time.Second
 	config := &commands.CommandConfig{
-		Cache:   pokecache.NewCache(cacheDuration),
-		Pokedex: make(map[string]pokeapi.Pokemon),
+		PokeapiClient: pokeapi.NewClient(5 * time.Second),
+		Pokedex:       make(map[string]pokeapi.Pokemon),
 	}
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Print(Prompt)
+		fmt.Print("Pokedex > ")
 		if !scanner.Scan() {
 			log.Fatalf("Scanner error: %v", scanner.Err())
 		}
-		input := repl.CleanInput(scanner.Text())
+		input := CleanInput(scanner.Text())
 		if len(input) == 0 {
 			continue
 		}
@@ -43,7 +39,7 @@ func main() {
 			args = input[1:]
 		}
 
-		err := command.Callback(config, args)
+		err := command.Callback(config, args...)
 		if err != nil {
 			fmt.Println(err)
 		}

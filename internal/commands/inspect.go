@@ -2,7 +2,7 @@ package commands
 
 import "fmt"
 
-func CommandInspect(config *CommandConfig, args []string) error {
+func CommandInspect(config *CommandConfig, args ...string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("usage: inspect <pokemon>")
 	}

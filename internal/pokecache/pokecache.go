@@ -6,34 +6,32 @@ import (
 )
 
 type cacheEntry struct {
-	createdAt   time.Time
-	val         []byte
-	nextUrl     string
-	previousUrl string
+	createdAt time.Time
+	val       []byte
 }
 
 type Cache struct {
 	entries map[string]cacheEntry
-	mu      sync.Mutex
+	mutex   *sync.Mutex
 }
 
-func NewCache(interval time.Duration) *Cache {
+func NewCache(interval time.Duration) Cache {
 	cache := Cache{
 		entries: make(map[string]cacheEntry),
+		mutex:   &sync.Mutex{},
 	}
 
 	go cache.expiryLoop(interval)
 
-	return &cache
+	return cache
 }
 
 func (c *Cache) expiryLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
-	for {
-		<-ticker.C
-		c.mu.Lock()
+	for range ticker.C {
+		c.mutex.Lock()
 
 		for k, v := range c.entries {
 			elapsed := time.Since(v.createdAt)
@@ -42,29 +40,24 @@ func (c *Cache) expiryLoop(interval time.Duration) {
 			}
 		}
 
-		c.mu.Unlock()
+		c.mutex.Unlock()
 	}
 }
 
-func (c *Cache) Add(key string, val []byte, nextUrl string, previousUrl string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *Cache) Add(key string, val []byte) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	c.entries[key] = cacheEntry{
-		createdAt:   time.Now(),
-		val:         val,
-		nextUrl:     nextUrl,
-		previousUrl: previousUrl,
+		createdAt: time.Now(),
+		val:       val,
 	}
 }
 
-func (c *Cache) Get(key string) ([]byte, string, string, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+func (c *Cache) Get(key string) ([]byte, bool) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	entry, ok := c.entries[key]
-	if !ok {
-		return nil, "", "", false
-	}
-	return entry.val, entry.nextUrl, entry.previousUrl, true
+	return entry.val, ok
 }

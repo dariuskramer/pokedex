@@ -1,56 +1,29 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
-	"log"
-	"strings"
-
-	"github.com/dariuskramer/pokedex/internal/pokeapi"
 )
 
-func CommandExplore(config *CommandConfig, args []string) error {
+func CommandExplore(config *CommandConfig, args ...string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("usage: explore <location...>")
+		return errors.New("usage: explore <location...>")
 	}
 
-	var result pokeapi.LocationsAreasEncounters
-	for _, location := range args {
-		url := pokeapi.LocationAreasURL + "/" + location
+	location, err := config.PokeapiClient.GetLocationEncounters(args[0])
+	if err != nil {
+		return err
+	}
 
-		fmt.Printf("Exploring %s...\n", location)
+	fmt.Printf("Exploring %s...\n", location.Name)
 
-		// Is it in the cache?
-		val, _, _, keyFound := config.Cache.Get(url)
-		if keyFound {
-			log.Println("cache hit!")
-			fmt.Print(string(val))
-			continue
-		}
+	if len(location.PokemonEncounters) == 0 {
+		fmt.Println("No Pokémon found!")
+		return nil
+	}
 
-		// Not in the cache so fetch the data from the API
-		err := pokeapi.Fetch(url, &result)
-		if err != nil {
-			return fmt.Errorf("explore: %v", err)
-		}
-
-		if len(result.PokemonEncounters) == 0 {
-			fmt.Println("No Pokémon found!")
-			continue
-		}
-
-		// Build the cached result
-		var cachedResult strings.Builder
-		cachedResult.WriteString("Found Pokémon:\n")
-		for _, pokemon := range result.PokemonEncounters {
-			s := fmt.Sprintf(" - %s\n", pokemon.Pokemon.Name)
-			cachedResult.WriteString(s)
-		}
-
-		// Print the result
-		fmt.Print(cachedResult.String())
-
-		// Cache the result from the API
-		config.Cache.Add(url, []byte(cachedResult.String()), "", "")
+	for _, encounter := range location.PokemonEncounters {
+		fmt.Printf(" - %s\n", encounter.Pokemon.Name)
 	}
 
 	return nil

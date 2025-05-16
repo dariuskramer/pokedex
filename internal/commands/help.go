@@ -2,7 +2,7 @@ package commands
 
 import "fmt"
 
-func CommandHelp(config *CommandConfig, args []string) error {
+func CommandHelp(config *CommandConfig, args ...string) error {
 	usage := `
 Welcome to the Pokedex!
 Usage:
