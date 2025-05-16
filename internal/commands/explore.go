@@ -20,7 +20,7 @@ func CommandExplore(config *CommandConfig, args []string) error {
 		fmt.Printf("Exploring %s...\n", location)
 
 		// Is it in the cache?
-		val, keyFound := config.Cache.Get(url)
+		val, _, _, keyFound := config.Cache.Get(url)
 		if keyFound {
 			log.Println("cache hit!")
 			fmt.Print(string(val))
@@ -50,7 +50,7 @@ func CommandExplore(config *CommandConfig, args []string) error {
 		fmt.Print(cachedResult.String())
 
 		// Cache the result from the API
-		config.Cache.Add(url, []byte(cachedResult.String()))
+		config.Cache.Add(url, []byte(cachedResult.String()), "", "")
 	}
 
 	return nil

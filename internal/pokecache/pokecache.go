@@ -6,8 +6,10 @@ import (
 )
 
 type cacheEntry struct {
-	createdAt time.Time
-	val       []byte
+	createdAt   time.Time
+	val         []byte
+	nextUrl     string
+	previousUrl string
 }
 
 type Cache struct {
@@ -44,23 +46,25 @@ func (c *Cache) expiryLoop(interval time.Duration) {
 	}
 }
 
-func (c *Cache) Add(key string, val []byte) {
+func (c *Cache) Add(key string, val []byte, nextUrl string, previousUrl string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	c.entries[key] = cacheEntry{
-		createdAt: time.Now(),
-		val:       val,
+		createdAt:   time.Now(),
+		val:         val,
+		nextUrl:     nextUrl,
+		previousUrl: previousUrl,
 	}
 }
 
-func (c *Cache) Get(key string) ([]byte, bool) {
+func (c *Cache) Get(key string) ([]byte, string, string, bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	entry, ok := c.entries[key]
 	if !ok {
-		return nil, false
+		return nil, "", "", false
 	}
-	return entry.val, true
+	return entry.val, entry.nextUrl, entry.previousUrl, true
 }

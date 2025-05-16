@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/dariuskramer/pokedex/internal/commands"
-	"github.com/dariuskramer/pokedex/internal/pokeapi"
 	"github.com/dariuskramer/pokedex/internal/pokecache"
 	"github.com/dariuskramer/pokedex/internal/repl"
 )
@@ -17,7 +16,6 @@ func main() {
 	const Prompt = "Pokedex > "
 	const cacheDuration = 5 * time.Second
 	config := &commands.CommandConfig{
-		Next:  pokeapi.LocationAreasURL,
 		Cache: pokecache.NewCache(cacheDuration),
 	}
 	scanner := bufio.NewScanner(os.Stdin)

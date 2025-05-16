@@ -8,48 +8,54 @@ import (
 	"github.com/dariuskramer/pokedex/internal/pokeapi"
 )
 
-func requestMap(url string, config *CommandConfig) error {
-	val, keyFound := config.Cache.Get(url)
+func fetchMap(url string, config *CommandConfig) error {
+	// Is it in the cache?
+	val, nextUrl, previousUrl, keyFound := config.Cache.Get(url)
 	if keyFound {
 		log.Println("cache hit!")
-		fmt.Println(string(val))
+		fmt.Print(string(val))
+		config.Next = nextUrl
+		config.Previous = previousUrl
 		return nil
 	}
 
+	// Not in the cache so fetch the data from the API
 	var result pokeapi.LocationAreas
 	err := pokeapi.Fetch(url, &result)
 	if err != nil {
 		return err
 	}
 
-	var locations strings.Builder
+	// Build the cached result
+	var cachedResult strings.Builder
 	for _, location := range result.Results {
-		fmt.Println(location.Name)
-		locations.WriteString(location.Name)
-		locations.WriteByte('\n')
+		cachedResult.WriteString(location.Name)
+		cachedResult.WriteByte('\n')
 	}
 
+	// Print the result
+	fmt.Print(cachedResult.String())
+
+	// Cache the result from the API
+	config.Cache.Add(url, []byte(cachedResult.String()), result.Next, result.Previous)
+
+	// Assign next/previous pagination
 	config.Next = result.Next
 	config.Previous = result.Previous
-	// if payload.Previous == "" {
-	// 	config.Previous = url
-	// } else {
-	// 	config.Previous = payload.Previous
-	// }
-	removeLastNewline := len(locations.String()) - 1
-	config.Cache.Add(url, []byte(locations.String()[:removeLastNewline]))
 
 	return nil
 }
 
 func CommandMap(config *CommandConfig, args []string) error {
-	url := config.Next
+	var url string
 
-	if url == "" {
-		return fmt.Errorf("map: no next location areas")
+	if config.Next != "" {
+		url = config.Next
+	} else {
+		url = pokeapi.LocationAreasURL
 	}
 
-	err := requestMap(url, config)
+	err := fetchMap(url, config)
 	if err != nil {
 		return fmt.Errorf("map: %v", err)
 	}
@@ -58,13 +64,15 @@ func CommandMap(config *CommandConfig, args []string) error {
 }
 
 func CommandMapb(config *CommandConfig, args []string) error {
-	url := config.Previous
+	var url string
 
-	if url == "" {
-		return fmt.Errorf("mapb: no previous location areas")
+	if config.Previous != "" {
+		url = config.Previous
+	} else {
+		url = pokeapi.LocationAreasURL
 	}
 
-	err := requestMap(url, config)
+	err := fetchMap(url, config)
 	if err != nil {
 		return fmt.Errorf("mapb: %v", err)
 	}
