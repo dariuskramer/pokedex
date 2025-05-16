@@ -1,5 +1,30 @@
 package pokeapi
 
+import (
+	"encoding/json"
+	"net/http"
+)
+
+const (
+	PokeApiLocationAreasURL = "https://pokeapi.co/api/v2/location-area/"
+)
+
+func Fetch(url string, result any) error {
+	response, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	decoder := json.NewDecoder(response.Body)
+	err = decoder.Decode(&result)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type LocationAreas struct {
 	Count    int    `json:"count"`
 	Next     string `json:"next"`
@@ -10,6 +35,3 @@ type LocationAreas struct {
 	} `json:"results"`
 }
 
-const (
-	PokeApiLocationAreasURL = "https://pokeapi.co/api/v2/location-area/"
-)

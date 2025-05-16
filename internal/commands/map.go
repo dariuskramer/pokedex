@@ -1,10 +1,8 @@
 package commands
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"strings"
 
 	"github.com/dariuskramer/pokedex/internal/pokeapi"
@@ -18,28 +16,21 @@ func requestMap(url string, config *CommandConfig) error {
 		return nil
 	}
 
-	response, err := http.Get(url)
+	var result pokeapi.LocationAreas
+	err := pokeapi.Fetch(url, &result)
 	if err != nil {
-		return fmt.Errorf("%v", err)
-	}
-	defer response.Body.Close()
-
-	var payload pokeapi.LocationAreas
-	decoder := json.NewDecoder(response.Body)
-	err = decoder.Decode(&payload)
-	if err != nil {
-		return fmt.Errorf("%v", err)
+		return err
 	}
 
 	var locations strings.Builder
-	for _, location := range payload.Results {
+	for _, location := range result.Results {
 		fmt.Println(location.Name)
 		locations.WriteString(location.Name)
 		locations.WriteByte('\n')
 	}
 
-	config.Next = payload.Next
-	config.Previous = payload.Previous
+	config.Next = result.Next
+	config.Previous = result.Previous
 	// if payload.Previous == "" {
 	// 	config.Previous = url
 	// } else {
