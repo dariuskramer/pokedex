@@ -51,7 +51,7 @@ func requestMap(url string, config *CommandConfig) error {
 	return nil
 }
 
-func CommandMap(config *CommandConfig) error {
+func CommandMap(config *CommandConfig, args []string) error {
 	url := config.Next
 
 	if url == "" {
@@ -66,7 +66,7 @@ func CommandMap(config *CommandConfig) error {
 	return nil
 }
 
-func CommandMapb(config *CommandConfig) error {
+func CommandMapb(config *CommandConfig, args []string) error {
 	url := config.Previous
 
 	if url == "" {

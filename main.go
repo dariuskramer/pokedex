@@ -38,7 +38,12 @@ func main() {
 			continue
 		}
 
-		err := command.Callback(config)
+		var args []string
+		if len(input) > 1 {
+			args = input[1:]
+		}
+
+		err := command.Callback(config, args)
 		if err != nil {
 			fmt.Println(err)
 		}
