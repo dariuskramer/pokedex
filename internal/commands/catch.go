@@ -37,12 +37,12 @@ func CommandCatch(config *CommandConfig, args []string) error {
 	chanceToCatch := rand.Intn(baseExperienceLimit)
 	if chanceToCatch >= result.BaseExperience {
 		fmt.Printf("%s was caught!\n", result.Name)
+
+		// Add to the Pokedex
+		config.Pokedex[result.Name] = result
 	} else {
 		fmt.Printf("%s escaped!\n", result.Name)
 	}
-
-	// Add to the Pokedex
-	config.Pokedex[result.Name] = result
 
 	return nil
 }
