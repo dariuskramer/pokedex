@@ -17,7 +17,7 @@ func main() {
 	const Prompt = "Pokedex > "
 	const cacheDuration = 5 * time.Second
 	config := &commands.CommandConfig{
-		Next:  pokeapi.PokeApiLocationAreasURL,
+		Next:  pokeapi.LocationAreasURL,
 		Cache: pokecache.NewCache(cacheDuration),
 	}
 	scanner := bufio.NewScanner(os.Stdin)

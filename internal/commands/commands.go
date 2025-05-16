@@ -40,5 +40,10 @@ func init() {
 			Description: "Display the previous 20 location areas in the Pokemon world",
 			Callback:    CommandMapb,
 		},
+		"explore": {
+			Name:        "explore",
+			Description: "List all the Pokémon from a location area",
+			Callback:    CommandExplore,
+		},
 	}
 }
