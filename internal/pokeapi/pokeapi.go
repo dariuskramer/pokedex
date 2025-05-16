@@ -7,6 +7,7 @@ import (
 
 const (
 	LocationAreasURL = "https://pokeapi.co/api/v2/location-area/"
+	PokemonURL       = "https://pokeapi.co/api/v2/pokemon/"
 )
 
 func Fetch(url string, result any) error {
@@ -43,4 +44,9 @@ type LocationsAreasEncounters struct {
 			URL  string `json:"url"`
 		} `json:"pokemon"`
 	} `json:"pokemon_encounters"`
+}
+
+type Pokemon struct {
+	Name           string `json:"name"`
+	BaseExperience int    `json:"base_experience"`
 }
